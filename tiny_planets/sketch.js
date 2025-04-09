@@ -1,14 +1,14 @@
 // --- Planet Variables ---
-let planet; // Object holding planet properties
-let planetTexture; // p5.Graphics object for the texture
-let cloudTexture; // ++ Added for cloud layer ++
-let ringTexture; // ++ Added for Gas Giant rings ++
+let planet;
+let planetTexture;
+let cloudTexture; 
+let ringTexture; 
 
 // --- Data Structures ---
 let suns = [];
 let moons = [];
-let stars = []; // Array to hold star data {x, y, z, baseBrightness, noiseOffset, color, size} ++ Added color, size ++
-let backgroundObjects = []; // Renamed from galaxies
+let stars = [];
+let backgroundObjects = [];
 let gl; // ++ Add WebGL context reference ++
 
 // --- Planet Types Enum ---
@@ -25,7 +25,7 @@ const PLANET_TYPES = Object.values(PlanetType);
 const MoonType = {
     ROCKY_CRATERED: 'Rocky Cratered',
     ICY: 'Icy',
-    VOLCANIC_MOON: 'Volcanic Moon' // Rare type
+    VOLCANIC_MOON: 'Volcanic Moon'
 };
 const MOON_TYPES = Object.values(MoonType);
 
@@ -37,10 +37,10 @@ const MOON_TEXTURE_WIDTH = 512;
 const MOON_TEXTURE_HEIGHT = 256;
 const BG_OBJECT_TEXTURE_WIDTH = 512;
 const BG_OBJECT_TEXTURE_HEIGHT = 512;
-const CLOUD_TEXTURE_WIDTH = 1024; // ++ Added ++
-const CLOUD_TEXTURE_HEIGHT = 512; // ++ Added ++
-const RING_TEXTURE_SIZE = 1024; // ++ Added ++
-const SUN_TEXTURE_SIZE = 512; // ++ Added ++
+const CLOUD_TEXTURE_WIDTH = 1024; 
+const CLOUD_TEXTURE_HEIGHT = 512; 
+const RING_TEXTURE_SIZE = 1024; 
+const SUN_TEXTURE_SIZE = 512; 
 
 // Noise Scales
 const NOISE_SCALE_LOW = 0.008;
@@ -92,26 +92,26 @@ const AURORA_NOISE_SCALE_BASE = 0.02;
 const AURORA_NOISE_SCALE_CURTAIN = 0.08;
 const AURORA_NOISE_SCALE_DETAIL = 0.15;
 const AURORA_NOISE_SCALE_PULSE = 0.015;
-const AURORA_INTENSITY_FACTOR = 2.0; // ++ Increased intensity ++
+const AURORA_INTENSITY_FACTOR = 2.0;
 const AURORA_PULSE_MIN_INTENSITY = 0.6;
-const AURORA_PULSE_MAX_INTENSITY = 1.5; // ++ Increased max ++
+const AURORA_PULSE_MAX_INTENSITY = 1.5;
 const AURORA_CURTAIN_FREQUENCY = 15.0;
 const AURORA_POLAR_FALLOFF_POWER = 4.0;
-const AURORA_ANIMATION_SPEED = 0.001; // ++ Added speed for animation ++
+const AURORA_ANIMATION_SPEED = 0.001;
 
 // Sun Generation
 const MIN_SUN_DISTANCE = 5800;
 const MAX_SUN_DISTANCE = 6500;
 const MIN_SUN_RADIUS_FACTOR = 1.5;
 const MAX_SUN_RADIUS_FACTOR = 3.0;
-const NUMBER_OF_SUNS = 1;
+const NUMBER_OF_SUNS = 2;
 const SUN_AXIAL_ROTATION_SPEED_MIN = 0.001;
 const SUN_AXIAL_ROTATION_SPEED_MAX = 0.005;
 const SUN_ORBIT_SPEED_BASE = 10.0;
 const SUN_MAX_ORBIT_TILT = 0.15;
-const SUN_CORONA_NOISE_SCALE = 0.08; // ++ Added ++
-const SUN_CORE_BRIGHTNESS = 255; // ++ Added ++
-const SUN_CORONA_BRIGHTNESS = 180; // ++ Added ++
+const SUN_CORONA_NOISE_SCALE = 0.08; 
+const SUN_CORE_BRIGHTNESS = 255; 
+const SUN_CORONA_BRIGHTNESS = 180; 
 
 // Moon Generation
 const NUMBER_OF_MOONS = 3;
@@ -133,35 +133,34 @@ const PLANET_RADIUS_MIN = 80;
 const PLANET_RADIUS_MAX = 150;
 const GAS_GIANT_RADIUS_MIN = 180;
 const GAS_GIANT_RADIUS_MAX = 250;
-const PLANET_ATMOSPHERE_FACTOR = 1.03; // ++ Added: How much larger atmosphere is ++
-const PLANET_ATMOSPHERE_ALPHA = 100; // ++ Added: Transparency of atmosphere ++
-const PLANET_CLOUD_FACTOR = 1.015; // ++ Added: How much larger cloud layer is ++
-const PLANET_CLOUD_ALPHA = 180; // ++ Added: Transparency of clouds ++
-const PLANET_CLOUD_ROTATION_FACTOR = 0.5; // ++ Added: How fast clouds rotate relative to planet ++
-const GAS_GIANT_RING_INNER_RADIUS_FACTOR = 1.4; // ++ Added ++
-const GAS_GIANT_RING_OUTER_RADIUS_FACTOR = 2.5; // ++ Added ++
-const GAS_GIANT_RING_ALPHA = 200; // ++ Added ++
+const PLANET_ATMOSPHERE_FACTOR = 1.03;
+const PLANET_ATMOSPHERE_ALPHA = 100;
+const PLANET_CLOUD_FACTOR = 1.015;
+const PLANET_CLOUD_ALPHA = 180;
+const PLANET_CLOUD_ROTATION_FACTOR = 0.5;
+const GAS_GIANT_RING_INNER_RADIUS_FACTOR = 1.4; 
+const GAS_GIANT_RING_OUTER_RADIUS_FACTOR = 2.5; 
+const GAS_GIANT_RING_ALPHA = 200; 
 
 // Star Field & Background Object Constants
-const STAR_COUNT = 3500; // ++ Increased ++
+const STAR_COUNT = 3500;
 const STAR_FIELD_MIN_RADIUS = 8000;
 const STAR_FIELD_MAX_RADIUS = 150000;
-const STAR_MIN_BASE_BRIGHTNESS = 30; // ++ Reduced min slightly ++
-const STAR_MAX_BASE_BRIGHTNESS = 220; // ++ Increased max slightly ++
-const STAR_VIBRATION_AMOUNT = 0.35; // ++ Increased slightly ++
-const STAR_VIBRATION_SPEED = 0.015; // ++ Increased slightly ++
-const STAR_MIN_POINT_SIZE = 1.0; // ++ Added Min ++
-const STAR_MAX_POINT_SIZE = 2.5; // ++ Added Max ++
-const STAR_COLOR_PROB_WHITE = 0.65; // ++ Star color probabilities ++
+const STAR_MIN_BASE_BRIGHTNESS = 30;
+const STAR_MAX_BASE_BRIGHTNESS = 220;
+const STAR_VIBRATION_AMOUNT = 0.35;
+const STAR_VIBRATION_SPEED = 0.015;
+const STAR_MIN_POINT_SIZE = 1.0; 
+const STAR_MAX_POINT_SIZE = 2.5; 
+const STAR_COLOR_PROB_WHITE = 0.65;
 const STAR_COLOR_PROB_YELLOW = 0.15;
 const STAR_COLOR_PROB_BLUE = 0.15;
-// const STAR_COLOR_PROB_RED = 0.05; // (Implicitly the rest)
 
 const BG_OBJECT_COUNT = 15;
 const BG_OBJECT_MIN_DISTANCE = 160000;
 const BG_OBJECT_MAX_DISTANCE = 280000;
 const BG_OBJECT_MIN_SIZE = 5000;
-const BG_OBJECT_MAX_SIZE = 35000; // ++ Increased max size ++
+const BG_OBJECT_MAX_SIZE = 35000;
 const BG_OBJECT_MAX_ROTATION_SPEED = 0.001;
 
 // Background Object Types Enum
@@ -184,7 +183,6 @@ const BG_BASE_FADE_POWER = 1.5;
 const BG_EDGE_FADE_START = 0.7; // ++ Start fading alpha earlier ++
 const BG_EDGE_FADE_END = 0.99;  // ++ Fully faded alpha slightly later ++
 
-// Palettes (will be defined in setup)
 let bgObjectPalettes = {
     [BGObjectType.SPIRAL]: [],
     [BGObjectType.ELLIPTICAL]: [],
@@ -211,7 +209,7 @@ function setup() {
     let camFOV = PI / 3.0;
     let camAspect = width / height;
     let camNear = 0.1;
-    let camFar = maxDist * 2;
+    let camFar = maxDist;
     perspective(camFOV, camAspect, camNear, camFar);
 
     noiseDetail(8, 0.5);
@@ -225,8 +223,8 @@ function setup() {
     planet.craters = [];
     planet.hasAurora = false;
     planet.atmosphereColor = color(100, 150, 255, PLANET_ATMOSPHERE_ALPHA); // Default atmosphere
-    planet.hasClouds = false; // ++ Added ++
-    planet.hasRings = false; // ++ Added ++
+    planet.hasClouds = false; 
+    planet.hasRings = false; 
 
     // Determine radius first
     if (planet.type === PlanetType.GAS_GIANT) {
@@ -261,8 +259,8 @@ function setup() {
     planet.rotationSpeed = random(PLANET_ROTATION_SPEED_MIN, PLANET_ROTATION_SPEED_MAX);
     planet.tiltX = random(-PLANET_MAX_TILT, PLANET_MAX_TILT);
     planet.tiltZ = random(-PLANET_MAX_TILT, PLANET_MAX_TILT);
-    planet.cloudRotationY = 0; // ++ Added ++
-    planet.cloudRotationSpeed = planet.rotationSpeed * PLANET_CLOUD_ROTATION_FACTOR; // ++ Added ++
+    planet.cloudRotationY = 0; 
+    planet.cloudRotationSpeed = planet.rotationSpeed * PLANET_CLOUD_ROTATION_FACTOR; 
 
     // --- Generate Planet Craters ---
     if (planet.type === PlanetType.ROCKY || planet.type === PlanetType.VOLCANIC || planet.type === PlanetType.ICE) {
@@ -859,7 +857,6 @@ function createRingTexture(planetType) {
 
     let baseColor1 = color(180, 170, 160); // Grayish
     let baseColor2 = color(140, 130, 115); // Brownish/Darker
-    let gapColor = color(0, 0); // Transparent gap
 
     const numMainRings = 5;
     const ringVariance = 0.3; // How much ring edges wobble
@@ -911,18 +908,31 @@ function createRingTexture(planetType) {
 // == ++ SUN TEXTURE GENERATION FUNCTION ++ ==
 // =====================================================================
 function createSunTexture(baseColor) {
-    let pg = createGraphics(SUN_TEXTURE_SIZE, SUN_TEXTURE_SIZE / 2); // Rectangular texture for sphere mapping
+    let pg = createGraphics(SUN_TEXTURE_SIZE, SUN_TEXTURE_SIZE / 2); // Rectangular texture
     pg.pixelDensity(1);
     pg.colorMode(RGB, 255);
     pg.loadPixels();
-    let seed = random(90000, 100000);
+    let seed1 = random(90000, 93000);
+    let seed2 = random(93000, 96000);
+    let seed3 = random(96000, 100000);
 
-    let coreColor = color(SUN_CORE_BRIGHTNESS, SUN_CORE_BRIGHTNESS, SUN_CORE_BRIGHTNESS * 0.9); // Almost white hot core
-    let midColor = baseColor; // Use the provided base color for the main body/corona base
-    let coronaColor = color(red(baseColor), green(baseColor), blue(baseColor), 150); // Base color with some transparency
-    let darkSpotColor = color(red(baseColor) * 0.6, green(baseColor) * 0.5, blue(baseColor) * 0.4); // Sunspot color
+    // More vibrant and contrasty color palette for plasma/lava look
+    let colorHot1 = color(255, 255, 230); // Very bright yellow-white
+    let colorHot2 = color(255, 200, 80);  // Bright orange-yellow
+    let colorMid = color(red(baseColor), green(baseColor)*0.9, blue(baseColor)*0.7); // Base, slightly redder
+    let colorCool1 = color(200, 80, 20);   // Deep orange-red
+    let colorCool2 = color(100, 30, 10);   // Darkest red/brown (sunspots base)
+    let sunspotDetailColor = color(50, 15, 5); // Very dark core for spots
 
-    noiseDetail(6, 0.5); // Noise detail for sun surface
+    // Noise settings for different features
+    let plasmaNoiseScaleLow = 0.02; // Large scale flows/cells
+    let plasmaNoiseScaleMid = 0.08; // Medium scale texture/boiling
+    let plasmaNoiseScaleHigh = 0.3;  // Fine granulation/details
+    let warpNoiseScale = 0.15;      // Noise scale for coordinate distortion (swirls)
+    let spotNoiseScale = 0.05;      // Noise scale for placing sunspot regions
+    let spotDetailNoiseScale = 0.4; // Noise for details within sunspots
+
+    noiseDetail(7, 0.55); // Slightly higher detail for sun
 
     for (let y = 0; y < pg.height; y++) {
         for (let x = 0; x < pg.width; x++) {
@@ -938,50 +948,70 @@ function createSunTexture(baseColor) {
             let nCoordY = (1 + cos(vAngle) * sin(angle)) * refRadius;
             let nCoordZ = (1 + sin(vAngle)) * refRadius;
 
-            // Base noise for surface texture (granulation)
-            let surfaceNoiseScale = SUN_CORONA_NOISE_SCALE * 3.0;
-            let surfaceNoise = noise(nCoordX * surfaceNoiseScale + seed, nCoordY * surfaceNoiseScale + seed, nCoordZ * surfaceNoiseScale + seed);
+            // --- Domain Warping (Swirl Effect) ---
+            // Use one noise layer to offset the coordinates for the next layers
+            let warpXNoise = noise(nCoordX * warpNoiseScale + seed1, nCoordY * warpNoiseScale + seed1 + 5);
+            let warpYNoise = noise(nCoordX * warpNoiseScale + seed1 + 10, nCoordY * warpNoiseScale + seed1 + 15);
+            let warpAmount = 15.0; // How much to distort coordinates
+            let warpedX = nCoordX + (warpXNoise - 0.5) * warpAmount;
+            let warpedY = nCoordY + (warpYNoise - 0.5) * warpAmount;
+            let warpedZ = nCoordZ; // Keep Z for now
 
-            // Noise for sunspots
-             let spotNoiseScale = SUN_CORONA_NOISE_SCALE * 0.8;
-             let spotNoise = noise(nCoordX * spotNoiseScale + seed + 10, nCoordY * spotNoiseScale + seed + 10, nCoordZ * spotNoiseScale + seed + 10);
+            // --- Plasma/Lava Flow Noise Layers (using warped coordinates) ---
+            let plasmaLow = noise(warpedX * plasmaNoiseScaleLow + seed2, warpedY * plasmaNoiseScaleLow + seed2, warpedZ * plasmaNoiseScaleLow + seed2);
+            let plasmaMid = noise(warpedX * plasmaNoiseScaleMid + seed2 + 10, warpedY * plasmaNoiseScaleMid + seed2 + 10, warpedZ * plasmaNoiseScaleMid + seed2 + 10);
+            let plasmaHigh = noise(warpedX * plasmaNoiseScaleHigh + seed3, warpedY * plasmaNoiseScaleHigh + seed3, warpedZ * plasmaNoiseScaleHigh + seed3);
 
-            // Noise for corona intensity/shape
-            let coronaNoiseScale = SUN_CORONA_NOISE_SCALE;
-            let coronaNoise = noise(nCoordX * coronaNoiseScale + seed + 20, nCoordY * coronaNoiseScale + seed + 20, nCoordZ * coronaNoiseScale + seed + 20);
+            // --- Sunspot Noise (using original coordinates for placement) ---
+            let spotPlacement = noise(nCoordX * spotNoiseScale + seed3 + 20, nCoordY * spotNoiseScale + seed3 + 20, nCoordZ * spotNoiseScale + seed3 + 20);
+            let spotDetail = noise(nCoordX * spotDetailNoiseScale + seed3 + 30, nCoordY * spotDetailNoiseScale + seed3 + 30, nCoordZ * spotDetailNoiseScale + seed3 + 30);
 
-            // Blend colors based on noise
-             // Start with the mid color (base color)
-             let finalColor = midColor;
+            // --- Color Blending ---
+            // Base mix: blend between mid and cooler colors using large scale noise
+            let baseMix = smoothstep(0.3, 0.7, plasmaLow);
+            let finalColor = lerpColor(colorCool1, colorMid, baseMix);
 
-             // Add granulation texture
-             let granuleMix = map(surfaceNoise, 0, 1, -0.3, 0.3); // How much to brighten/darken
+            // Add hotter areas using medium scale noise, influenced by low scale
+            let hotMix = constrain(plasmaMid * 1.5 - 0.5, 0, 1) * baseMix; // Hotter areas appear within brighter large flows
+            finalColor = lerpColor(finalColor, colorHot2, hotMix);
+            finalColor = lerpColor(finalColor, colorHot1, constrain(hotMix * plasmaHigh * 2.0 - 0.5, 0, 1)); // Brightest highlights
+
+            // Add granulation/fine texture using high frequency noise
+            let granuleMix = map(plasmaHigh, 0, 1, -0.2, 0.2); // Subtle brighten/darken
              finalColor = color(
                  red(finalColor) * (1.0 + granuleMix),
                  green(finalColor) * (1.0 + granuleMix),
                  blue(finalColor) * (1.0 + granuleMix)
              );
 
-             // Add sunspots
-             let spotThreshold = 0.65;
-             if (spotNoise > spotThreshold) {
-                 let spotMix = smoothstep(spotThreshold, spotThreshold + 0.1, spotNoise);
-                 // Make spots sharper with surface noise
-                 spotMix *= constrain(1.0 - surfaceNoise * 1.5, 0, 1.0);
-                 finalColor = lerpColor(finalColor, darkSpotColor, spotMix * 0.8); // Blend towards dark spot color
+            // --- Apply Sunspots ---
+            let spotThreshold = 0.68; // Higher threshold for less frequent spots
+            let spotIntensity = 0.0;
+             if (spotPlacement > spotThreshold) {
+                 // Calculate intensity based on how far above threshold, creates shape
+                 spotIntensity = smoothstep(spotThreshold, spotThreshold + 0.08, spotPlacement);
+                 // Modulate with warped mid-freq noise to make edges less regular
+                 spotIntensity *= constrain(1.0 - plasmaMid * 1.5, 0.2, 1.0);
+                 spotIntensity = constrain(spotIntensity, 0, 1);
              }
 
-             // Simulate core brightness (stronger at center of texture, less realistic but works for sphere)
-             let coreFactor = 1.0 - ny; // Brighter towards top/bottom poles in texture map? Let's try radial instead.
-             // Let's assume the texture mapping makes the center brighter implicitly
-             // But we can slightly brighten the base color
-              finalColor = lerpColor(finalColor, coreColor, 0.1); // Slightly blend towards white hot
+            if (spotIntensity > 0.1) {
+                // Blend towards the base sunspot color
+                finalColor = lerpColor(finalColor, colorCool2, spotIntensity * 0.9);
+                // Add very dark core using detail noise within the spot
+                let spotCoreMix = constrain(spotDetail * 2.0 - 1.0, 0, 1) * spotIntensity;
+                finalColor = lerpColor(finalColor, sunspotDetailColor, spotCoreMix * 0.7);
+            }
 
-
-            // Corona effect isn't directly on the texture here, but we ensure base texture is good.
-            // The emissive material + point light handles the "glow".
-            // Let's just output the surface color.
-
+            // --- Subtle Limb Darkening (Fake) ---
+            // Darken pixels near the top/bottom edges of the texture map
+            let limbFactor = 1.0 - pow(abs(ny - 0.5) * 2.0, 2.0) * 0.15; // 1 at equator, ~0.85 at poles
+            finalColor = color(
+                red(finalColor) * limbFactor,
+                green(finalColor) * limbFactor,
+                blue(finalColor) * limbFactor
+            );
+            // --- Final Pixel Assignment ---
             pg.pixels[index + 0] = constrain(red(finalColor), 0, 255);
             pg.pixels[index + 1] = constrain(green(finalColor), 0, 255);
             pg.pixels[index + 2] = constrain(blue(finalColor), 0, 255);
@@ -993,11 +1023,9 @@ function createSunTexture(baseColor) {
     return pg;
 }
 
-
 // =====================================================================
 // == MOON TEXTURE GENERATION FUNCTION ==
 // =====================================================================
-// [ Minor tweaks possible, but largely unchanged ]
 function createMoonTexture(moonType, moonRadius, craters) {
     let pg = createGraphics(MOON_TEXTURE_WIDTH, MOON_TEXTURE_HEIGHT);
     pg.pixelDensity(1);
@@ -1606,11 +1634,12 @@ function draw() {
         // Apply axial rotation
         rotateY(sun.axialRotationY);
 
-        texture(sun.texture); // Apply the generated sun texture
-        // Use emissive material to make it glow independently of lights
-        // Tint the emission slightly with the base color for variation
-        emissiveMaterial(red(sun.color)*0.8, green(sun.color)*0.8, blue(sun.color)*0.7); // Tone down pure emission slightly
-        sphere(sun.size, 32, 32); // Higher detail sphere for sun
+        texture(sun.texture);
+        let emissiveR = lerp(red(sun.color), 255, 0.3);
+        let emissiveG = lerp(green(sun.color), 255, 0.3);
+        let emissiveB = lerp(blue(sun.color), 255, 0.1);
+        emissiveMaterial(emissiveR, emissiveG, emissiveB);
+        sphere(sun.size, 48, 48); // Increased detail sphere for sun
         pop();
     }
 
