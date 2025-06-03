@@ -37,7 +37,7 @@ class JellyFish extends OceanicCreature {
       const d = mag(k, e) ** 2 / 59 + 4; // This controls the size of the jellyfish and its tentacles
       const c = d / 2 + e / 99 - this.t / 18; // This value is used in the sine and cosine calculations later to create the circular movement pattern. The smaller the divisor (18 in this case), the faster the rotation will be.
       const q = 60 - 3 * sin(atan2(k, e) * e) + k * (3 + 4 / d * sin(d * d - this.t * 2));
-      point(this.rotation_direction* q * sin(c) + this.startX, (q + d * 9) * cos(c) + this.startY); // This draws the jellyfish
+      point(this.rotation_direction * q * sin(c) + this.startX, (q + d * 9) * cos(c) + this.startY); // This draws the jellyfish
     }
   }
 
@@ -50,21 +50,21 @@ class JellyFish extends OceanicCreature {
 
 // End of oceanic creatures classes
 
-let jellyfish = [];
+let oceanic_creatures = [];
 
 
 function setup() {
   createCanvas(800, 600);
   noStroke();
   for(let i = 0; i < Math.floor($fx.rand() * 10) + 1; i++) {
-    jellyfish.push(new JellyFish());
+    oceanic_creatures.push(new JellyFish());
   }
 }
 
 function draw() {
   background(0);
-  for (let i = 0; i < jellyfish.length; i++){
-    jellyfish[i].draw();
-    jellyfish[i].update();
+  for (let i = 0; i < oceanic_creatures.length; i++){
+    oceanic_creatures[i].draw();
+    oceanic_creatures[i].update();
   }
 }
