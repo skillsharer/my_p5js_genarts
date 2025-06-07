@@ -100,6 +100,52 @@ class SeaSpirit extends OceanicCreature {
   }
 }
 
+class SeaWanderer extends OceanicCreature {
+  constructor() {
+    super();
+    this.t = 0;
+    this.speed = Math.floor($fx.rand() * 30) + 10;
+    this.startX = Math.floor($fx.rand() * width);
+    this.startY = Math.floor($fx.rand() * height);
+    this.color = color(
+      $fx.rand() * 255,
+      $fx.rand() * 255,
+      $fx.rand() * 255
+    );
+    this.rotation_direction = Math.floor($fx.rand() * 2) === 0 ? 1 : -1;
+  }
+
+  draw() {
+    this.buffer.clear();
+    this.buffer.stroke(this.color);
+    this.buffer.strokeWeight(1);
+    this.buffer.noFill();
+
+    for (let i = 0; i < 20000; i++) {
+      const x = i % 100;
+      const y = i / 100;
+      const k = x/4 - 12.5;
+      const e = y/9 + 5;
+      const o = mag(k, e) / 9;
+      const c = o * e/30 - this.t/8;
+      const q = this.rotation_direction * (x + 99 + tan(1/k) + o * k * (cos(e * 9)/4 + cos(y/2)) * sin(o * 4 - this.t));
+      
+      this.buffer.point(
+        0.7 * q * sin(c) + 9 * cos(y/19 + this.t) + this.startX,
+        200 + q/2 * cos(c) + this.startY
+      );
+    }
+    image(this.buffer, 0, 0);
+  }
+
+  update() {
+    this.t += PI / 90;
+    this.startX = (this.startX + width) % width;
+    this.startY = (this.startY + height) % height;
+  }
+}
+
+
 // End of oceanic creatures classes
 
 let oceanic_creatures = [];
@@ -108,12 +154,9 @@ let oceanic_creatures = [];
 function setup() {
   createCanvas(800, 600);
   noStroke();
-  for(let i = 0; i < Math.floor($fx.rand() * 10) + 1; i++) {
-    oceanic_creatures.push(new JellyFish());
-  }
-  for(let i = 0; i < Math.floor($fx.rand() * 10) + 1; i++) {
-    oceanic_creatures.push(new SeaSpirit());
-  }
+  oceanic_creatures.push(new JellyFish());
+  oceanic_creatures.push(new SeaSpirit());  
+  oceanic_creatures.push(new SeaWanderer());
 }
 
 function draw() {
