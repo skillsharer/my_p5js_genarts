@@ -4,11 +4,26 @@ class OceanicCreature {
     this.t = 0;
     this.buffer = createGraphics(width, height);
   }
-  
+
   draw(x, y) {
   }
 
   update() {
+  }
+
+  wrapAround(pointX, pointY) {
+    if (pointX < 0) {
+        pointX += width;
+      } else if (pointX > width) {
+        pointX -= width;
+      }
+
+      if (pointY < 0) {
+        pointY += height;
+      } else if (pointY > height) {
+        pointY -= height;
+      }
+    return pointX, pointY;
   }
 }
 
@@ -44,15 +59,22 @@ class JellyFish extends OceanicCreature {
       const d = mag(k, e) ** 2 / 59 + 4;
       const c = d / 2 + e / 99 - this.t / 18;
       const q = 60 - 3 * sin(atan2(k, e) * e) + k * (3 + 4 / d * sin(d * d - this.t * 2));
-      this.buffer.point(this.rotation_direction * q * sin(c) + this.startX, (q + d * 9) * cos(c) + this.startY);
+
+      let pointX = this.rotation_direction * q * sin(c);
+      let pointY = (q + d * 9) * cos(c);
+
+      pointX += this.startX;
+      pointY += this.startY;
+      pointX, pointY = this.wrapAround(pointX, pointY);
+      this.buffer.point(pointX, pointY);
     }
     image(this.buffer, 0, 0);
   }
 
   update() {
     this.t += PI / this.speed;
-    this.startX = map(noise(this.xOff), 0, 1, -width * 0.2, width * 1.2);
-    this.startY = map(noise(this.yOff), 0, 1, -height * 0.2, height * 1.2);
+    this.startX = map(noise(this.xOff), 0, 1, 0, width);
+    this.startY = map(noise(this.yOff), 0, 1, 0, height);
     this.xOff += 0.001; // Speed of horizontal drift
     this.yOff += 0.001; // Speed of vertical drift
   }
@@ -90,19 +112,22 @@ class SeaSpirit extends OceanicCreature {
       const d = mag(k, e) ** 2 / 99 + sin(this.t) / 6 + 0.5;
       const c = d / 2 + e / 69 - this.t / 16;
       const q = this.rotation_direction * (99 - e * sin(atan2(k, e) * 7) / d + k * (3 + cos(d * d - this.t) * 2));
-
-      this.buffer.point(
-        q * sin(c) + this.startX,
-        (q + 19 * d) * cos(c) + this.startY
-      );
+      let pointX = q * sin(c);
+      let pointY = (q + 19 * d) * cos(c);
+      pointX += this.startX;
+      pointY += this.startY;
+      pointX, pointY = this.wrapAround(pointX, pointY);
+      this.buffer.point(pointX, pointY);
     }
     image(this.buffer, 0, 0);
   }
 
   update() {
     this.t += PI / 45;
-    this.startX = map(noise(this.xOff), 0, 1, -width * 0.2, width * 1.2);
-    this.startY = map(noise(this.yOff), 0, 1, -height * 0.2, height * 1.2);
+    // Update startX and startY using Perlin noise for smooth drift
+    this.startX = map(noise(this.xOff), 0, 1, 0, width);
+    this.startY = map(noise(this.yOff), 0, 1, 0, height);
+
     this.xOff += 0.0008; // Speed of horizontal drift
     this.yOff += 0.0008; // Speed of vertical drift
   }
@@ -136,26 +161,27 @@ class SeaWanderer extends OceanicCreature {
       const y = i / 100;
       let k = x/4 - 12.5;
       // Avoid division by zero for tan(1/k)
-      if (abs(k) < 0.01) { 
+      if (abs(k) < 0.01) {
         k = 0.01;
       }
       const e = y/9 + 5;
       const o = mag(k, e) / 9;
       const c = o * e/30 - this.t/8;
       const q = this.rotation_direction * (x + 99 + tan(1/k) + o * k * (cos(e * 9)/4 + cos(y/2)) * sin(o * 4 - this.t));
-      
-      this.buffer.point(
-        0.7 * q * sin(c) + 9 * cos(y/19 + this.t) + this.startX,
-        200 + q/2 * cos(c) + this.startY
-      );
+      let pointX = 0.7 * q * sin(c) + 9 * cos(y/19 + this.t);
+      let pointY = 200 + q/2 * cos(c);
+      pointX += this.startX;
+      pointY += this.startY;
+      pointX, pointY = this.wrapAround(pointX, pointY);
+      this.buffer.point(pointX, pointY);
     }
     image(this.buffer, 0, 0);
   }
 
   update() {
     this.t += PI / 90;
-    this.startX = map(noise(this.xOff), 0, 1, -width * 0.2, width * 1.2);
-    this.startY = map(noise(this.yOff), 0, 1, -height * 0.2, height * 1.2);
+    this.startX = map(noise(this.xOff), 0, 1, 0, width);
+    this.startY = map(noise(this.yOff), 0, 1, 0, height);
     this.xOff += 0.0006; // Speed of horizontal drift
     this.yOff += 0.0006; // Speed of vertical drift
   }
@@ -168,7 +194,7 @@ let oceanic_creatures = [];
 function setup() {
   createCanvas(800, 600);
   pixelDensity(1);
-  noStroke(); 
+  noStroke();
   noiseSeed($fx.rand() * 99999);
 
   oceanic_creatures.push(new JellyFish());
