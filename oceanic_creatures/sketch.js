@@ -23,7 +23,7 @@ class OceanicCreature {
       } else if (pointY > height) {
         pointY -= height;
       }
-    return pointX, pointY;
+    return [pointX, pointY];
   }
 }
 
@@ -65,7 +65,7 @@ class JellyFish extends OceanicCreature {
 
       pointX += this.startX;
       pointY += this.startY;
-      pointX, pointY = this.wrapAround(pointX, pointY);
+      [pointX, pointY] = this.wrapAround(pointX, pointY);
       this.buffer.point(pointX, pointY);
     }
     image(this.buffer, 0, 0);
@@ -116,7 +116,7 @@ class SeaSpirit extends OceanicCreature {
       let pointY = (q + 19 * d) * cos(c);
       pointX += this.startX;
       pointY += this.startY;
-      pointX, pointY = this.wrapAround(pointX, pointY);
+      [pointX, pointY] = this.wrapAround(pointX, pointY);
       this.buffer.point(pointX, pointY);
     }
     image(this.buffer, 0, 0);
@@ -172,7 +172,7 @@ class SeaWanderer extends OceanicCreature {
       let pointY = 200 + q/2 * cos(c);
       pointX += this.startX;
       pointY += this.startY;
-      pointX, pointY = this.wrapAround(pointX, pointY);
+      [pointX, pointY] = this.wrapAround(pointX, pointY);
       this.buffer.point(pointX, pointY);
     }
     image(this.buffer, 0, 0);
