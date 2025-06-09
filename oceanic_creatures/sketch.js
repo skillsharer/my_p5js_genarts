@@ -1,4 +1,34 @@
 // This generative art is inspired by the work of https://x.com/yuruyurau.
+function getCreatureColor() {
+  const palettes = [
+    { // Electric jellyfish
+      base: color(20, 150, 255, 40),    // Soft blue base
+      core: color(0, 255, 255, 180)     // Cyan core with high alpha
+    },
+    { // Deep sea spirit
+      base: color(147, 0, 255, 40),     // Deep purple base
+      core: color(255, 0, 255, 180)     // Magenta core
+    },
+    { // Abyssal wanderer
+      base: color(255, 100, 0, 40),     // Orange base
+      core: color(255, 255, 0, 180)     // Yellow core
+    },
+    { // Bio-luminescent phantom
+      base: color(0, 255, 100, 40),     // Green base
+      core: color(150, 255, 0, 180)     // Lime core
+    },
+    { // Crystal creature
+      base: color(100, 200, 255, 40),   // Light blue base
+      core: color(255, 255, 255, 180)   // White core
+    },
+    { // Deep sea phoenix
+      base: color(255, 0, 100, 40),     // Pink base
+      core: color(255, 150, 0, 180)     // Golden core
+    }
+  ];
+  return palettes[Math.floor($fx.rand() * palettes.length)];
+}
+
 class OceanicCreature {
   constructor() {
     this.t = 0;
@@ -13,16 +43,15 @@ class OceanicCreature {
 
   wrapAround(pointX, pointY) {
     if (pointX < 0) {
-        pointX += width;
-      } else if (pointX > width) {
-        pointX -= width;
-      }
-
-      if (pointY < 0) {
-        pointY += height;
-      } else if (pointY > height) {
-        pointY -= height;
-      }
+      pointX += width;
+    } else if (pointX > width) {
+      pointX -= width;
+    }
+    if (pointY < 0) {
+      pointY += height;
+    } else if (pointY > height) {
+      pointY -= height;
+    }
     return [pointX, pointY];
   }
 }
@@ -31,27 +60,20 @@ class JellyFish extends OceanicCreature {
   constructor() {
     super();
     this.t = 0;
-    this.speed = Math.floor($fx.rand() * 30) + 10; // Random speed between 10 and 30
+    this.speed = Math.floor($fx.rand() * 30) + 10;
     this.startX = $fx.rand() * width;
     this.startY = $fx.rand() * height;
-    this.color = color(
-      $fx.rand() * 255,
-      $fx.rand() * 255,
-      $fx.rand() * 255
-    );
-    this.rotation_direction = Math.floor($fx.rand() * 2) === 0 ? 1 : -1; // Randomly choose rotation direction
-    // Add noise offsets for smooth movement
+    this.colors = getCreatureColor();
+    this.rotation_direction = Math.floor($fx.rand() * 2) === 0 ? 1 : -1;
     this.xOff = $fx.rand() * 100;
     this.yOff = $fx.rand() * 1000;
   }
 
   draw() {
     this.buffer.clear();
-    this.buffer.stroke(this.color);
-    this.buffer.strokeWeight(1);
-    this.buffer.noFill();
+    this.buffer.loadPixels(); // Load pixels for direct manipulation
 
-    for (let j = 0; j < 10000; j++){
+    for (let j = 0; j < 10000; j++) {
       const baseX = j % 400;
       const baseY = j / 43;
       const k = 5 * cos(baseX / 14) * cos(baseY / 30);
@@ -66,8 +88,36 @@ class JellyFish extends OceanicCreature {
       pointX += this.startX;
       pointY += this.startY;
       [pointX, pointY] = this.wrapAround(pointX, pointY);
-      this.buffer.point(pointX, pointY);
+
+      // Dynamic color based on distance from center
+      let distFromCenter = dist(pointX, pointY, this.startX, this.startY);
+      let colorMix = constrain(
+              map(sin(distFromCenter * 0.05 + this.t), -1, 1, 0, 0.7), // Reduced max mix
+              0,
+              0.7
+            );      
+      let pointColor = lerpColor(this.colors.base, this.colors.core, colorMix);      
+      
+      // Directly manipulate pixels for additive blending effect
+      let ix = floor(pointX);
+      let iy = floor(pointY);
+
+      if (ix >= 0 && ix < width && iy >= 0 && iy < height) {
+        let pixIndex = (iy * width + ix) * 4;
+
+        let r = red(pointColor);
+        let g = green(pointColor);
+        let b = blue(pointColor);
+        // let a = alpha(pointColor); // Alpha of the point color is not directly used in this pixel add method
+
+        this.buffer.pixels[pixIndex] = min(255, this.buffer.pixels[pixIndex] + r);
+        this.buffer.pixels[pixIndex + 1] = min(255, this.buffer.pixels[pixIndex + 1] + g);
+        this.buffer.pixels[pixIndex + 2] = min(255, this.buffer.pixels[pixIndex + 2] + b);
+        this.buffer.pixels[pixIndex + 3] = 255; // Set alpha to opaque
+      }
     }
+
+    this.buffer.updatePixels(); // Update the buffer
     image(this.buffer, 0, 0);
   }
 
@@ -87,11 +137,7 @@ class SeaSpirit extends OceanicCreature {
     this.speed = Math.floor($fx.rand() * 30) + 10;
     this.startX = $fx.rand() * width;
     this.startY = $fx.rand() * height;
-    this.color = color(
-      $fx.rand() * 255,
-      $fx.rand() * 255,
-      $fx.rand() * 255
-    );
+    this.colors = getCreatureColor();
     this.rotation_direction = Math.floor($fx.rand() * 2) === 0 ? 1 : -1;
     this.xOff = $fx.rand() * 200;
     this.yOff = $fx.rand() * 2000;
@@ -99,9 +145,7 @@ class SeaSpirit extends OceanicCreature {
 
   draw() {
     this.buffer.clear();
-    this.buffer.stroke(this.color);
-    this.buffer.strokeWeight(1);
-    this.buffer.noFill();
+    this.buffer.loadPixels(); // Load pixels for direct manipulation
 
     for (let i = 0; i < 10000; i++) {
       const x = i % 200;
@@ -117,8 +161,32 @@ class SeaSpirit extends OceanicCreature {
       pointX += this.startX;
       pointY += this.startY;
       [pointX, pointY] = this.wrapAround(pointX, pointY);
-      this.buffer.point(pointX, pointY);
+      let distFromCenter = dist(pointX, pointY, this.startX, this.startY);
+      let colorMix = constrain(
+        map(cos(distFromCenter * 0.03 + this.t), -1, 1, 0, 0.6),
+        0,
+        0.6
+      );
+      let pointColor = lerpColor(this.colors.base, this.colors.core, colorMix);
+      
+      // Directly manipulate pixels for additive blending effect
+      let ix = floor(pointX);
+      let iy = floor(pointY);
+
+      if (ix >= 0 && ix < width && iy >= 0 && iy < height) {
+        let pixIndex = (iy * width + ix) * 4;
+
+        let r = red(pointColor);
+        let g = green(pointColor);
+        let b = blue(pointColor);
+
+        this.buffer.pixels[pixIndex] = min(255, this.buffer.pixels[pixIndex] + r);
+        this.buffer.pixels[pixIndex + 1] = min(255, this.buffer.pixels[pixIndex + 1] + g);
+        this.buffer.pixels[pixIndex + 2] = min(255, this.buffer.pixels[pixIndex + 2] + b);
+        this.buffer.pixels[pixIndex + 3] = 255; // Set alpha to opaque
+      }
     }
+    this.buffer.updatePixels(); // Update the buffer
     image(this.buffer, 0, 0);
   }
 
@@ -138,11 +206,7 @@ class SeaWanderer extends OceanicCreature {
     this.speed = Math.floor($fx.rand() * 30) + 10;
     this.startX = $fx.rand() * width;
     this.startY = $fx.rand() * height;
-    this.color = color(
-      $fx.rand() * 255,
-      $fx.rand() * 255,
-      $fx.rand() * 255
-    );
+    this.colors = getCreatureColor();
     this.rotation_direction = Math.floor($fx.rand() * 2) === 0 ? 1 : -1;
     this.xOff = $fx.rand() * 300;
     this.yOff = $fx.rand() * 3000;
@@ -150,9 +214,7 @@ class SeaWanderer extends OceanicCreature {
 
   draw() {
     this.buffer.clear();
-    this.buffer.stroke(this.color);
-    this.buffer.strokeWeight(1);
-    this.buffer.noFill();
+    this.buffer.loadPixels(); // Load pixels for direct manipulation
 
     for (let i = 0; i < 20000; i++) {
       const x = i % 100;
@@ -171,8 +233,32 @@ class SeaWanderer extends OceanicCreature {
       pointX += this.startX;
       pointY += this.startY;
       [pointX, pointY] = this.wrapAround(pointX, pointY);
-      this.buffer.point(pointX, pointY);
+      let distFromCenter = dist(pointX, pointY, this.startX, this.startY);
+      let colorMix = constrain(
+        map(sin(distFromCenter * 0.02 + this.t * 2), -1, 1, 0, 0.5),
+        0,
+        0.5
+      );
+      let pointColor = lerpColor(this.colors.base, this.colors.core, colorMix);
+      
+      // Directly manipulate pixels for additive blending effect
+      let ix = floor(pointX);
+      let iy = floor(pointY);
+
+      if (ix >= 0 && ix < width && iy >= 0 && iy < height) {
+        let pixIndex = (iy * width + ix) * 4;
+
+        let r = red(pointColor);
+        let g = green(pointColor);
+        let b = blue(pointColor);
+
+        this.buffer.pixels[pixIndex] = min(255, this.buffer.pixels[pixIndex] + r);
+        this.buffer.pixels[pixIndex + 1] = min(255, this.buffer.pixels[pixIndex + 1] + g);
+        this.buffer.pixels[pixIndex + 2] = min(255, this.buffer.pixels[pixIndex + 2] + b);
+        this.buffer.pixels[pixIndex + 3] = 230; // Set alpha to opaque
+      }
     }
+    this.buffer.updatePixels(); // Update the buffer
     image(this.buffer, 0, 0);
   }
 
